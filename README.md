@@ -4,10 +4,14 @@ a compiler for basic instruction (using flex and bison)
 
 
 
+
+
 cd       到你的工作目录
 
 
 make     直接编译
+
+
 
 
 
