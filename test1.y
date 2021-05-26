@@ -68,14 +68,14 @@ EXP 			: EXP GT{push();} EXP {codegen_logical();}
 				| NUM {push();}
 				;
 
-STMT_IF 		: IF LB EXP RB  {if_label1();} THEN STMTS ELSESTMT 
+STMT_IF 		: IF EXP  {if_label1();} THEN STMTS ELSESTMT 
 				;
 
 ELSESTMT		: ELSE {if_label2();} STMTS {if_label3();}
 				| {if_label3();}
 				;
 
-STMT_WHILE		: {while_start();} WHILE LB EXP RB {while_rep();} WHILEBODY  
+STMT_WHILE		: {while_start();} WHILE EXP {while_rep();}DO WHILEBODY  
 				;
 
 WHILEBODY		: STMTS {while_end();}
@@ -115,9 +115,12 @@ extern FILE* output;
 
 
 char st[10000][100];
+char st2[1000][100];
 int top=0;
+int top2=0;
 int i=0;
 char temp[10] ="t";
+char ifbiaodashi[10];
 
 int label[2000];
 int lnum=0;
@@ -136,17 +139,19 @@ void yyerror(char *s) {
     
 void push()
 {
-	printf("before push\n");
   	strcpy(st[++top],yytext);
-	printf("after push\n");
 }
 
 void codegen_logical()
 {
  	sprintf(temp,"$t%d",i);			//2031 illegal hardware instruction
-  	fprintf(f1,"%s\t=\t%s\t%s\t%s\n",temp,st[top-2],st[top-1],st[top]);
+	sprintf(ifbiaodashi,"%s\t%s\t%s",st[top-2],st[top-1],st[top]);	
+  	//fprintf(f1,"%s\t=\t%s\t%s\t%s\n",temp,st[top-2],st[top-1],st[top]);
   	top-=2;
  	strcpy(st[top],temp);
+	top2++;
+	strcpy(st2[top2],ifbiaodashi);
+	
  	i++;
 }
 
@@ -160,7 +165,6 @@ void codegen_algebric()
 }
 void codegen_assign()
 {
-	fprintf(f1,"fuzhiyuju\n");
  	fprintf(f1,"%s\t=\t%s\n",st[top-2],st[top]);
  	top-=3;
 }
@@ -168,7 +172,7 @@ void codegen_assign()
 void if_label1()
 {
  	lnum++;
- 	fprintf(f1,"\tif( not %s)",st[top]);
+ 	fprintf(f1,"\tif not %s",st2[top2]);
  	fprintf(f1,"\tgoto $L%d\n",lnum);
  	label[++ltop]=lnum;
 }
@@ -199,7 +203,7 @@ void while_start()
 void while_rep()
 {
 	lnum++;
- 	fprintf(f1,"if( not %s)",st[top]);
+ 	fprintf(f1,"if( not %s)",st2[top2]);
  	fprintf(f1,"\tgoto $L%d\n",lnum);
  	label[++ltop]=lnum;
 }
@@ -247,8 +251,6 @@ void STMT_DECLARE()
 	int i,flag;
 	flag=0;
 	strcpy(temp,yytext);
-	printf("i am declare\n");
-	fprintf(f1,"declareyuju\n");
 	printf("yytext is %s",yytext);
 	for(i=0;i<tableCount;i++)
 	{
@@ -351,15 +353,8 @@ int main(int argc, char *argv[])
 	
 	fclose(yyin);
 	fclose(f1);
-
-	for(int i = 0;i<10;i++){
-	printf("%s \n",st[i]);
-	}
-	printf("\n");
-	for(int j = 0;j<10;j++){
-	printf("%d    ",label[i]);}
-
-	//intermediateCode();
+	
+	intermediateCode();
     return 0;
 }
          

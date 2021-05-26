@@ -1,3 +1,5 @@
-startdeclareyuju
-$t0	=	a	>	0
-	if( not $t0)	goto $L1
+start$L1:
+if( not a	>	0)	goto $L2
+a	=	1
+		goto $L1
+$L2: 
