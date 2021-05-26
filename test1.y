@@ -136,9 +136,7 @@ void yyerror(char *s) {
     
 void push()
 {
-	printf("before push\n");
   	strcpy(st[++top],yytext);
-	printf("after push\n");
 }
 
 void codegen_logical()
@@ -160,7 +158,6 @@ void codegen_algebric()
 }
 void codegen_assign()
 {
-	fprintf(f1,"fuzhiyuju\n");
  	fprintf(f1,"%s\t=\t%s\n",st[top-2],st[top]);
  	top-=3;
 }
@@ -247,8 +244,6 @@ void STMT_DECLARE()
 	int i,flag;
 	flag=0;
 	strcpy(temp,yytext);
-	printf("i am declare\n");
-	fprintf(f1,"declareyuju\n");
 	printf("yytext is %s",yytext);
 	for(i=0;i<tableCount;i++)
 	{
@@ -351,15 +346,8 @@ int main(int argc, char *argv[])
 	
 	fclose(yyin);
 	fclose(f1);
-
-	for(int i = 0;i<10;i++){
-	printf("%s \n",st[i]);
-	}
-	printf("\n");
-	for(int j = 0;j<10;j++){
-	printf("%d    ",label[i]);}
-
-	//intermediateCode();
+	
+	intermediateCode();
     return 0;
 }
          
