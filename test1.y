@@ -141,7 +141,7 @@ void push()
 
 void codegen_logical()
 {
- 	sprintf(temp,"$t%d",i);			//2031 illegal hardware instruction
+ 	sprintf(temp,"$temp%d",i);			//2031 illegal hardware instruction
   	fprintf(f1,"%s\t=\t%s\t%s\t%s\n",temp,st[top-2],st[top-1],st[top]);
   	top-=2;
  	strcpy(st[top],temp);
@@ -150,7 +150,7 @@ void codegen_logical()
 
 void codegen_algebric()
 {
- 	sprintf(temp,"$t%d",i); // converts temp to reqd format
+ 	sprintf(temp,"$temp%d",i); // converts temp to reqd format
   	fprintf(f1,"%s\t=\t%s\t%s\t%s\n",temp,st[top-2],st[top-1],st[top]);
   	top-=2;
  	strcpy(st[top],temp);
@@ -191,7 +191,7 @@ void while_start()
 {
 	lnum++;
 	label[++ltop]=lnum;
-	fprintf(f1,"$L%d:\n",lnum);
+	fprintf(f1,"$L%d: \n",lnum);
 }
 void while_rep()
 {
@@ -325,7 +325,7 @@ void intermediateCode()
 			else printf("%s",buf);
 		}
 	}
-	printf("%3d:\tend\n",++lineno);
+	printf("%3d:\tend:\n",++lineno);
 	fclose(f1);
 }
 
@@ -334,7 +334,7 @@ int main(int argc, char *argv[])
 	output = stdout;
 	yyin = fopen(argv[1], "r");
 	f1=fopen("output","w");
-	fprintf(f1,"start");
+	fprintf(f1,"start:\n");
 	if (!f1) exit(1);
    	if(!yyparse())
 		printf("\nParsing complete\n");
