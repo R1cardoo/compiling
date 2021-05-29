@@ -174,8 +174,27 @@ extern FILE *yyin, *yyout;
 #define EOB_ACT_END_OF_FILE 1
 #define EOB_ACT_LAST_MATCH 2
 
-    #define YY_LESS_LINENO(n)
-    #define YY_LINENO_REWIND_TO(ptr)
+    /* Note: We specifically omit the test for yy_rule_can_match_eol because it requires
+     *       access to the local variable yy_act. Since yyless() is a macro, it would break
+     *       existing scanners that call yyless() from OUTSIDE yylex. 
+     *       One obvious solution it to make yy_act a global. I tried that, and saw
+     *       a 5% performance hit in a non-yylineno scanner, because yy_act is
+     *       normally declared as a register variable-- so it is not worth it.
+     */
+    #define  YY_LESS_LINENO(n) \
+            do { \
+                int yyl;\
+                for ( yyl = n; yyl < yyleng; ++yyl )\
+                    if ( yytext[yyl] == '\n' )\
+                        --yylineno;\
+            }while(0)
+    #define YY_LINENO_REWIND_TO(dst) \
+            do {\
+                const char *p;\
+                for ( p = yy_cp-1; p >= (dst); --p)\
+                    if ( *p == '\n' )\
+                        --yylineno;\
+            }while(0)
     
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
@@ -520,6 +539,12 @@ static yyconst flex_int16_t yy_chk[227] =
        75,   75,   75,   75,   75,   75
     } ;
 
+/* Table of booleans, true if rule could match eol. */
+static yyconst flex_int32_t yy_rule_can_match_eol[31] =
+    {   0,
+1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,     };
+
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
 
@@ -551,7 +576,7 @@ int totlines=0;
 FILE* output;
 int intnum(char* yytext,int i);
 double realnum(char* yytext,int i);
-#line 555 "lex.yy.c"
+#line 580 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -769,9 +794,9 @@ YY_DECL
 		}
 
 	{
-#line 28 "test1.l"
+#line 31 "test1.l"
 
-#line 775 "lex.yy.c"
+#line 800 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -817,6 +842,16 @@ yy_find_action:
 
 		YY_DO_BEFORE_ACTION;
 
+		if ( yy_act != YY_END_OF_BUFFER && yy_rule_can_match_eol[yy_act] )
+			{
+			yy_size_t yyl;
+			for ( yyl = 0; yyl < yyleng; ++yyl )
+				if ( yytext[yyl] == '\n' )
+					   
+    yylineno++;
+;
+			}
+
 do_action:	/* This label is used only to access EOF actions. */
 
 		switch ( yy_act )
@@ -831,155 +866,155 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 /* rule 1 can match eol */
 YY_RULE_SETUP
-#line 29 "test1.l"
+#line 32 "test1.l"
 {chars++; lines++;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 30 "test1.l"
+#line 33 "test1.l"
 {chars+=strlen(yytext);}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 31 "test1.l"
+#line 34 "test1.l"
 {words++; chars+=2; fprintf(output,"IF\n"); return IF;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 32 "test1.l"
+#line 35 "test1.l"
 {words++; chars+=4; fprintf(output,"THEN\n"); return THEN;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 33 "test1.l"
+#line 36 "test1.l"
 {words++; chars+=4; fprintf(output,"ELSE\n"); return ELSE;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 34 "test1.l"
+#line 37 "test1.l"
 {words++; chars+=5; fprintf(output,"WHILE\n"); return WHILE;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 35 "test1.l"
+#line 38 "test1.l"
 {words++; chars+=2; fprintf(output,"DO\n"); return DO;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 36 "test1.l"
+#line 39 "test1.l"
 {chars++; fprintf(output,"INT:int\n"); return INT;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 37 "test1.l"
+#line 40 "test1.l"
 {chars++; fprintf(output,"DOUBLE:double\n"); return DOUBLE;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 38 "test1.l"
+#line 41 "test1.l"
 {chars++; fprintf(output,"PLUS:+\n"); return PLUS;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 39 "test1.l"
+#line 42 "test1.l"
 {chars++; fprintf(output,"MINUS:-\n"); return MINUS;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 40 "test1.l"
+#line 43 "test1.l"
 {chars++; fprintf(output,"MULTI:*\n"); return MULTI;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 41 "test1.l"
+#line 44 "test1.l"
 {chars++; fprintf(output,"RDIV:/\n"); return RDIV;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 42 "test1.l"
+#line 45 "test1.l"
 {chars++; fprintf(output,"GT:>\n"); return GT;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 43 "test1.l"
+#line 46 "test1.l"
 {chars++; fprintf(output,"LT:<\n"); return LT;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 44 "test1.l"
+#line 47 "test1.l"
 {chars++; fprintf(output,"EQ:=\n"); return EQ;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 45 "test1.l"
+#line 48 "test1.l"
 {chars++; fprintf(output,"SEMIC ;\n"); return SEMIC;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 46 "test1.l"
+#line 49 "test1.l"
 {chars++; fprintf(output,"LB:(\n"); return LB;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 47 "test1.l"
+#line 50 "test1.l"
 {chars++; fprintf(output,"RB:)\n"); return RB;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 48 "test1.l"
+#line 51 "test1.l"
 {chars++; fprintf(output,"LC:{\n"); return LC;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 49 "test1.l"
+#line 52 "test1.l"
 {chars++; fprintf(output,"RC:}\n"); return RC;}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 50 "test1.l"
+#line 53 "test1.l"
 {words++; chars+=strlen(yytext); fprintf(output,"ID:%s\n",yytext); return ID;}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 51 "test1.l"
+#line 54 "test1.l"
 {words++; chars+=strlen(yytext); fprintf(output,"INTDEC:%s\n",yytext); return INTDEC;}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 52 "test1.l"
+#line 55 "test1.l"
 {words++; chars+=strlen(yytext); fprintf(output,"INTOCT:%d\n",intnum(yytext,1)); return INTOCT;}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 53 "test1.l"
+#line 56 "test1.l"
 {words++; chars+=strlen(yytext); fprintf(output,"INTHEX:%d\n",intnum(yytext,2)); return INTHEX;}
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
-#line 54 "test1.l"
+#line 57 "test1.l"
 {words++; chars+=strlen(yytext); fprintf(output,"REALDEC:%s\n",yytext); return REALDEC;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 55 "test1.l"
+#line 58 "test1.l"
 {words++; chars+=strlen(yytext); fprintf(output,"REALOCT:%f\n",realnum(yytext,1)); return REALOCT;}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 56 "test1.l"
+#line 59 "test1.l"
 {words++; chars+=strlen(yytext); fprintf(output,"REALHEX:%f\n",realnum(yytext,2)); return REALHEX;}
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
-#line 57 "test1.l"
+#line 60 "test1.l"
 {chars++; fprintf(output,"NOT\n");}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 58 "test1.l"
+#line 61 "test1.l"
 ECHO;
 	YY_BREAK
-#line 983 "lex.yy.c"
+#line 1018 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1343,6 +1378,10 @@ static int yy_get_next_buffer (void)
 
 	*--yy_cp = (char) c;
 
+    if ( c == '\n' ){
+        --yylineno;
+    }
+
 	(yytext_ptr) = yy_bp;
 	(yy_hold_char) = *yy_cp;
 	(yy_c_buf_p) = yy_cp;
@@ -1419,6 +1458,11 @@ static int yy_get_next_buffer (void)
 	c = *(unsigned char *) (yy_c_buf_p);	/* cast for 8-bit char's */
 	*(yy_c_buf_p) = '\0';	/* preserve yytext */
 	(yy_hold_char) = *++(yy_c_buf_p);
+
+	if ( c == '\n' )
+		   
+    yylineno++;
+;
 
 	return c;
 }
@@ -1886,6 +1930,9 @@ static int yy_init_globals (void)
      * This function is called from yylex_destroy(), so don't allocate here.
      */
 
+    /* We do not touch yylineno unless the option is enabled. */
+    yylineno =  1;
+    
     (yy_buffer_stack) = 0;
     (yy_buffer_stack_top) = 0;
     (yy_buffer_stack_max) = 0;
@@ -1980,7 +2027,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 58 "test1.l"
+#line 61 "test1.l"
 
 
 

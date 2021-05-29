@@ -15,6 +15,9 @@ FILE* output;
 int intnum(char* yytext,int i);
 double realnum(char* yytext,int i);
 %}
+
+%option yylineno
+
 ws [ \t\r\f\v]+
 letter [a-zA-Z]
 digit [0-9]

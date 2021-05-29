@@ -1,5 +1,9 @@
-start$L1:
-if( not a	>	0)	goto $L2
+start$t0	=	c	*	1
+$t1	=	b	+	$t0
+a	=	$t1
+	if not a	=	0	goto $L1
 a	=	1
-		goto $L1
+		goto $L2
+$L1: 
+a	=	2
 $L2: 

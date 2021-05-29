@@ -23,6 +23,9 @@ void STMT_DECLARE();
 void intermediateCode();
 %}
 
+%error-verbose
+
+
 %token ID INT DOUBLE INTDEC INTOCT INTHEX REALDEC REALOCT REALHEX
 %token WHILE DO
 %token IF ELSE THEN
@@ -30,17 +33,19 @@ void intermediateCode();
 %left EQ
 %left PLUS MINUS
 %left MULTI RDIV
-%left GT LT
-%left LB RB
-%left LC RC
+%left GT LT//大于号小于号
+%left LB RB//左右小括号
+%left LC RC//左右大括号
 %left SEMIC
 
   
 %%
-pgmstart 		: TYPE ID LB RB STMTS
+pgmstart 		: TYPE ID LB RB STMTS// int main（）
+				|error STMTS
 				;
 
 STMTS 			: LC STMT1 RC
+				| LC error RC
 //				|	STMT    //对于循环或if条件语句 没有花括号则代码体就一句  
 				;
 
@@ -59,12 +64,16 @@ STMT 			: STMT_DECLARE    //all types of statements
 
 EXP 			: EXP GT{push();} EXP {codegen_logical();}
 				| EXP LT{push();} EXP {codegen_logical();}
+				| EXP EQ{push();} EXP {codegen_logical();}
 				| EXP PLUS {push();} EXP {codegen_algebric();}
 				| EXP MINUS{push();} EXP {codegen_algebric();}
 				| EXP MULTI{push();} EXP {codegen_algebric();}
 				| EXP RDIV{push();} EXP {codegen_algebric();}
 				| LB EXP RB
-				| ID {check();push();}
+				| ID {
+					check();
+					push();
+					}
 				| NUM {push();}
 				;
 
@@ -81,15 +90,17 @@ STMT_WHILE		: {while_start();} WHILE EXP {while_rep();}DO WHILEBODY
 WHILEBODY		: STMTS {while_end();}
 				;
 
-STMT_DECLARE 	: TYPE {setType();}  ID {STMT_DECLARE();}  IDS	//声明语句 IDS控制是否初始化
+STMT_DECLARE 	: TYPE {setType();}  ID {STMT_DECLARE();push();}  IDS	//声明语句 IDS控制是否初始化
 				;
 
 IDS 			: SEMIC
 				| EQ NUM SEMIC
+				//|EQ{push();} EXP SEMIC //有冲突
 				;
 
 
-STMT_ASSGN		: ID {push();} EQ {push();} EXP {codegen_assign();} SEMIC
+STMT_ASSGN		: ID {push();} EQ {push();} EXP {codegen_assign();} SEMIC  //赋值语句
+				|error SEMIC
 				;
 
 
@@ -134,7 +145,7 @@ struct Table
 int tableCount=0;
 
 void yyerror(char *s) {
-	printf("Syntax Error in line number : %d : %s %s\n", yylineno, s, yytext );
+	printf("第 %d 行有语法错误 %s %s\n", yylineno, s, yytext );
 }
     
 void push()
@@ -234,8 +245,8 @@ void check()
 	}
 	if(!flag)
 	{
-		yyerror("Variable not declard");
-		exit(0);
+		yyerror("符号未定义：");
+		//exit(0);
 	}
 }
 
@@ -262,10 +273,10 @@ void STMT_DECLARE()
 	}
 	if(flag)
 	{
-		yyerror("reSTMT_DECLARE of ");
-		exit(0);
+		yyerror("符号重定义：");
+		//exit(0);
 	}
-	else
+	else//如果之前没有定义这个符号，则在符号表里记录它
 	{
 		strcpy(table[tableCount].id,temp);
 		strcpy(table[tableCount].type,type);
