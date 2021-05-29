@@ -81,13 +81,12 @@ STMT_WHILE		: {while_start();} WHILE LB EXP RB {while_rep();} WHILEBODY
 WHILEBODY		: STMTS {while_end();}
 				;
 
-STMT_DECLARE 	: TYPE {setType();}  ID {STMT_DECLARE();}  IDS	//声明语句 IDS控制是否初始化
+STMT_DECLARE 	: TYPE {setType();}  ID {STMT_DECLARE();push();}  IDS	//声明语句 IDS控制是否初始化
 				;
 
 IDS 			: SEMIC
-				| EQ NUM SEMIC
+				| EQ{push();} EXP SEMIC
 				;
-
 
 STMT_ASSGN		: ID {push();} EQ {push();} EXP {codegen_assign();} SEMIC
 				;
@@ -116,7 +115,7 @@ extern FILE* output;
 
 char st[10000][100];
 int top=0;
-int i=0;
+int ii=0;
 char temp[10] ="t";
 
 int label[2000];
@@ -141,31 +140,32 @@ void push()
 
 void codegen_logical()
 {
- 	sprintf(temp,"$temp%d",i);			//2031 illegal hardware instruction
+ 	sprintf(temp,"$temp%d",ii);			//2031 illegal hardware instruction
   	fprintf(f1,"%s\t=\t%s\t%s\t%s\n",temp,st[top-2],st[top-1],st[top]);
   	top-=2;
  	strcpy(st[top],temp);
- 	i++;
+ 	ii++;
 }
 
 void codegen_algebric()
 {
- 	sprintf(temp,"$temp%d",i); // converts temp to reqd format
+ 	sprintf(temp,"$temp%d",ii); // converts temp to reqd format
   	fprintf(f1,"%s\t=\t%s\t%s\t%s\n",temp,st[top-2],st[top-1],st[top]);
   	top-=2;
  	strcpy(st[top],temp);
- 	i++;
+ 	ii++;
 }
+
 void codegen_assign()
 {
  	fprintf(f1,"%s\t=\t%s\n",st[top-2],st[top]);
  	top-=3;
 }
- 
+
 void if_label1()
 {
  	lnum++;
- 	fprintf(f1,"\tif( not %s)",st[top]);
+ 	fprintf(f1,"if( not %s)",st[top]);
  	fprintf(f1,"\tgoto $L%d\n",lnum);
  	label[++ltop]=lnum;
 }
@@ -217,9 +217,9 @@ void check()
 	char temp[200];
 	strcpy(temp,yytext);
 	int flag=0;
-	for(i=0;i<tableCount;i++)
+	for(ii=0;ii<tableCount;ii++)
 	{
-		if(!strcmp(table[i].id,temp))
+		if(!strcmp(table[ii].id,temp))
 		{
 			flag=1;
 			break;
@@ -244,7 +244,6 @@ void STMT_DECLARE()
 	int i,flag;
 	flag=0;
 	strcpy(temp,yytext);
-	printf("yytext is %s",yytext);
 	for(i=0;i<tableCount;i++)
 	{
 		if(!strcmp(table[i].id,temp))

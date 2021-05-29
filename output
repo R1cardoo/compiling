@@ -1,16 +1,17 @@
 start:
-$temp0	=	a	>	0
-	if( not $temp0)	goto $L1
-a	=	1
+$temp0	=	a	<	0
+if( not $temp0)	goto $L1
+a	=	5
 		goto $L2
 $L1: 
-a	=	2
+$temp0	=	a	+	2
+b	=	$temp0
 $L2: 
-a	=	5
+b	=	5
 $L3: 
-$temp0	=	a	>	0
-if( not $temp0)	goto $L4
-$temp0	=	a	-	1
-a	=	$temp0
+$temp2	=	b	>	0
+if( not $temp2)	goto $L4
+$temp2	=	b	-	1
+b	=	$temp2
 		goto $L3
 $L4: 
