@@ -22,7 +22,7 @@ void setType();
 void STMT_DECLARE();
 void intermediateCode();//中间代码生成
 %}
-
+%error-verbose
 %token ID INT DOUBLE INTDEC INTOCT INTHEX REALDEC REALOCT REALHEX
 %token WHILE DO
 %token IF ELSE THEN
@@ -37,9 +37,11 @@ void intermediateCode();//中间代码生成
   
 %%
 pgmstart 		: TYPE ID LB RB SGMT//()
+				|error STMTS
 				;
 
 SGMT 			: LC STMT1 RC//{}
+				| LC error RC
 //				|	STMT    //对于循环或if条件语句 没有花括号则代码体就一句  
 				;
 
@@ -80,15 +82,17 @@ STMT_WHILE		: {while_start();} WHILE EXP {while_rep();}DO WHILEBODY
 WHILEBODY		: SGMT {while_end();}
 				;
 
-STMT_DECLARE 	: TYPE {setType();}  ID {STMT_DECLARE();}  IDS	//IDS控制是否初始化
+STMT_DECLARE 	: TYPE {setType();}  ID {STMT_DECLARE(); push();}  IDS	//IDS控制是否初始化
 				;
 
 IDS 			: SEMIC
 				| EQ NUM SEMIC
+								//|EQ{push();} EXP SEMIC //有冲突
 				;
 
 
 STMT_ASSGN		: ID {push();} EQ {push();} EXP {gen_assign();} SEMIC
+				|error SEMIC
 				;
 
 
@@ -133,7 +137,7 @@ struct Table
 int tableCount=0;
 
 void yyerror(char *s) {
-	printf("Syntax Error in line number : %d : %s %s\n", yylineno, s, yytext );
+	printf("第 %d 行有语法错误 %s %s\n", yylineno, s, yytext );
 }
     
 void push()
@@ -233,8 +237,8 @@ void check()
 	}
 	if(!flag)
 	{
-		yyerror("Variable not declard");
-		exit(0);
+		yyerror("符号未定义：");
+		//exit(0);
 	}
 }
 
@@ -261,8 +265,8 @@ void STMT_DECLARE()
 	}
 	if(flag)
 	{
-		yyerror("reSTMT_DECLARE of ");
-		exit(0);
+		yyerror("符号重定义：");
+		//exit(0);
 	}
 	else
 	{
